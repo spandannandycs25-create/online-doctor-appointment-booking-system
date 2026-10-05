@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MediCare India — Online Hospital Appointment System</title>
+<style>
+:root{--teal:#0f766e;--teal-d:#0b5a54;--blue:#1d4ed8;--ink:#12303a;--mute:#51666e;--line:#d5e3e6;--bg:#f2f8f9;--err:#b42318;--ok:#067647}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+header{background:linear-gradient(120deg,var(--teal),var(--blue));color:#fff;padding:14px 20px}
+.bar{max-width:1100px;margin:auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.brand h1{margin:0;font-size:1.5rem}.brand p{margin:0;font-size:.95rem;opacity:.95}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav a{color:#fff;text-decoration:none;padding:8px 14px;border-radius:8px;font-weight:600}
+nav a:hover,nav a:focus-visible{background:rgba(255,255,255,.2)}
+.demo{background:#fff8e1;border-bottom:1px solid #f0d98a;color:#6b4f00;text-align:center;padding:8px 12px;font-size:.9rem}
+main{max-width:1100px;margin:22px auto;padding:0 16px}
+.card{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(15,60,70,.09);padding:22px;margin-bottom:22px}
+h2{margin:0 0 4px;color:var(--teal-d)}.sub{color:var(--mute);margin:0 0 16px;font-size:.92rem}
+.today{display:inline-block;background:#e0f2f1;color:var(--teal-d);padding:3px 10px;border-radius:99px;font-size:.85rem;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.field{display:flex;flex-direction:column}
+label{font-weight:600;font-size:.92rem;margin-bottom:5px}
+label .req{color:var(--err)}
+input,select{font:inherit;padding:10px 12px;border:1.5px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);width:100%;min-height:44px}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid #7cc4ff;outline-offset:2px}
+.field.bad input,.field.bad select{border-color:var(--err);background:#fff6f5}
+.msg{color:var(--err);font-size:.83rem;min-height:1.1em;margin-top:3px}
+.hint{color:var(--mute);font-size:.82rem;margin-top:3px}
+.full{grid-column:1/-1}
+.btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+button{font:inherit;font-weight:600;border:0;border-radius:9px;padding:12px 22px;cursor:pointer;min-height:46px}
+.pri{background:var(--teal);color:#fff}.pri:hover{background:var(--teal-d)}
+.sec{background:#e8f1f3;color:var(--ink)}.sec:hover{background:#d7e8ec}
+.dng{background:#fff;color:var(--err);border:1.5px solid var(--err)}.dng:hover{background:#fff1f0}
+.toast{display:none;padding:12px 16px;border-radius:9px;margin-bottom:14px;font-weight:600}
+.toast.ok{display:block;background:#ecfdf3;color:var(--ok);border:1px solid #abefc6}
+.toast.err{display:block;background:#fef3f2;color:var(--err);border:1px solid #fecdca}
+#confirmWrap{display:none}
+.conf{border:2px solid var(--teal);border-radius:14px;padding:20px;background:#f7fdfc}
+.conf .tick{width:56px;height:56px;border-radius:50%;background:var(--teal);color:#fff;font-size:30px;display:grid;place-items:center;margin-bottom:8px;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:12px 0}
+dt{color:var(--mute);font-weight:600}dd{margin:0;word-break:break-word}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.82rem;font-weight:700}
+.b-ok{background:#ecfdf3;color:var(--ok)}.b-x{background:#fef3f2;color:var(--err)}
+.tools{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.tools input{flex:1;min-width:200px}.tools select{width:auto;min-width:150px}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
+.appt{border:1.5px solid var(--line);border-radius:12px;padding:16px;background:#fff}
+.appt.cancelled{opacity:.65;background:#fafafa}
+.appt h3{margin:0 0 6px;font-size:1.05rem}.appt p{margin:2px 0;font-size:.92rem}
+.appt .btns{margin-top:10px}
+.empty{text-align:center;color:var(--mute);padding:28px 10px;border:2px dashed var(--line);border-radius:12px}
+.info{background:#eef7f8;border-radius:9px;padding:8px 12px;font-size:.85rem;color:var(--mute);margin-top:6px}
+footer{text-align:center;color:var(--mute);font-size:.85rem;padding:0 16px 28px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}button{width:100%}.tools select{width:100%}dl{grid-template-columns:1fr}dt{margin-top:6px}}
+@media print{body{background:#fff}body *{visibility:hidden}#confirmCard,#confirmCard *{visibility:visible}#confirmCard{position:absolute;left:0;top:0;width:100%;border:1px solid #000}.noprint{display:none!important}}
+@media(prefers-reduced-motion:reduce){.conf .tick{animation:none}}
+</style>
+</head>
+<body>
+<header><div class="bar">
+<div class="brand"><h1>MediCare India</h1><p>Online Healthcare Appointment Booking</p></div>
+<nav aria-label="Main navigation"><a href="#book">Book Appointment</a><a href="#mine">My Appointments</a></nav>
+</div></header>
+<div class="demo" role="note">Demo healthcare appointment system. Hospital and doctor information shown here is fictional. No data leaves your browser.</div>
+
+<main>
+<section class="card" id="book" aria-labelledby="bt">
+<h2 id="bt">Book an Appointment</h2>
+<p class="sub">Today is <span class="today" id="todayLabel"></span> &nbsp; Fields marked <span style="color:var(--err)">*</span> are required.</p>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<form id="form" novalidate>
+<div class="grid">
+<div class="field" id="f-name"><label for="name">Patient Name <span class="req">*</span></label><input id="name" autocomplete="name" placeholder="e.g. Rahul Sharma"><div class="msg" id="e-name"></div></div>
+<div class="field" id="f-dept"><label for="dept">Department <span class="req">*</span></label><select id="dept"></select><div class="msg" id="e-dept"></div></div>
+<div class="field" id="f-doctor"><label for="doctor">Doctor <span class="req">*</span></label><select id="doctor" disabled></select><div class="msg" id="e-doctor"></div></div>
+<div class="field" id="f-agecat"><label for="agecat">Age of Patient <span class="req">*</span></label><select id="agecat"></select><div class="msg" id="e-agecat"></div></div>
+<div class="field" id="f-age"><label for="age">Exact Age (optional)</label><input id="age" type="number" min="0" max="120" inputmode="numeric" placeholder="Used to check the age group"><div class="msg" id="e-age"></div></div>
+<div class="field" id="f-gender"><label for="gender">Gender <span class="req">*</span></label><select id="gender"></select><div class="msg" id="e-gender"></div></div>
+<div class="field" id="f-mobile"><label for="mobile">Mobile Number <span class="req">*</span></label><input id="mobile" type="tel" autocomplete="tel" placeholder="9876543210 or +91 9876543210"><div class="msg" id="e-mobile"></div></div>
+<div class="field" id="f-email"><label for="email">Email ID <span class="req">*</span></label><input id="email" type="email" autocomplete="email" placeholder="name@example.com"><div class="msg" id="e-email"></div></div>
+<div class="field" id="f-state"><label for="state">State / Union Territory <span class="req">*</span></label><select id="state"></select><div class="msg" id="e-state"></div></div>
+<div class="field" id="f-hospital"><label for="hospital">Hospital Name (demo) <span class="req">*</span></label><select id="hospital" disabled></select><div class="msg" id="e-hospital"></div></div>
+<div class="field" id="f-date"><label for="date">Date of Appointment <span class="req">*</span></label><input id="date" type="date"><div class="msg" id="e-date"></div><div class="hint" id="dateShow"></div></div>
+<div class="field" id="f-time"><label for="time">Time of Appointment (1 hour) <span class="req">*</span></label><select id="time"></select><div class="msg" id="e-time"></div><div class="hint">Greyed-out slots are already booked or have passed.</div></div>
+<div class="full info" id="preview" aria-live="polite">Choose a department, doctor and hospital to see a summary here.</div>
+</div>
+<div class="btns"><button type="submit" class="pri">Book Appointment</button><button type="button" class="sec" id="clear">Clear Form</button></div>
+</form>
+</section>
+
+<section class="card" id="confirmWrap" aria-live="polite">
+<div class="conf" id="confirmCard"></div>
+<div class="btns noprint"><button class="pri" id="printBtn">Print Confirmation</button></div>
+</section>
+
+<section class="card" id="mine" aria-labelledby="mt">
+<h2 id="mt">My Appointments</h2>
+<p class="sub">Saved in this browser only.</p>
+<div class="tools"><input id="search" type="search" placeholder="Search by name, ID, doctor, hospital…" aria-label="Search appointments"><select id="statusFilter" aria-label="Filter by status"><option value="all">All statuses</option><option value="Confirmed">Confirmed</option><option value="Cancelled">Cancelled</option></select></div>
+<div class="list" id="list"></div>
+</section>
+</main>
+<footer>MediCare India is a fictional demo. It does not provide real medical services. For emergencies, contact your local emergency number.</footer>
+
+<script>
+"use strict";
+/* ---------- DATA ---------- */
+const DOCTORS={
+"General Medicine":["Dr. Arjun Mehta","Dr. Priya Sharma","Dr. Rahul Verma"],
+"Cardiology":["Dr. Ananya Rao","Dr. Vikram Kapoor","Dr. Neha Iyer"],
+"Dermatology":["Dr. Kavya Nair","Dr. Sameer Khanna","Dr. Ritu Bansal"],
+"Pediatrics":["Dr. Sunita Joshi","Dr. Aman Gill","Dr. Meera Pillai"],
+"Orthopedics":["Dr. Karan Malhotra","Dr. Deepa Menon","Dr. Harish Reddy"],
+"Neurology":["Dr. Ishaan Bose","Dr. Lakshmi Narayanan","Dr. Farhan Qureshi"],
+"Gynecology":["Dr. Anjali Deshmukh","Dr. Shreya Kulkarni","Dr. Pooja Chawla"],
+"ENT":["Dr. Rohit Saxena","Dr. Tanvi Patel","Dr. Naveen Hegde"],
+"Ophthalmology":["Dr. Divya Agarwal","Dr. Manish Tiwari","Dr. Swati Dutta"],
+"Dentistry":["Dr. Kabir Singh","Dr. Nisha Thomas","Dr. Varun Bhatt"],
+"Psychiatry":["Dr. Aditi Sinha","Dr. Rajeev Menon","Dr. Zoya Ansari"],
+"Gastroenterology":["Dr. Siddharth Rao","Dr. Bhavna Shetty","Dr. Imran Sheikh"],
+"Pulmonology":["Dr. Gayatri Mishra","Dr. Prakash Nambiar","Dr. Alka Jain"],
+"Urology":["Dr. Yash Grover","Dr. Sandhya Pillai","Dr. Mohit Choudhary"]};
+const BLURB={"General Medicine":"Primary care & common illnesses","Cardiology":"Heart & blood vessels","Dermatology":"Skin, hair & nails","Pediatrics":"Children's health","Orthopedics":"Bones & joints","Neurology":"Brain & nervous system","Gynecology":"Women's health","ENT":"Ear, nose & throat","Ophthalmology":"Eye care","Dentistry":"Teeth & oral health","Psychiatry":"Mental health","Gastroenterology":"Digestive system","Pulmonology":"Lungs & breathing","Urology":"Urinary tract & kidneys"};
+const STATES={
+"Andhra Pradesh":["Sunrise Care Hospital","Vizag Bay Medical Center"],
+"Arunachal Pradesh":["Himalayan Wellness Hospital"],
+"Assam":["Brahmaputra Care Hospital","Guwahati Central Hospital"],
+"Bihar":["Ganga LifeCare Hospital","Patna Prime Hospital"],
+"Chhattisgarh":["Central India Health Hospital"],
+"Goa":["Coastal Care Hospital"],
+"Gujarat":["Gujarat Prime Medical Center","Sabarmati Care Hospital"],
+"Haryana":["Haryana Wellness Hospital"],
+"Himachal Pradesh":["Mountain View Medical Center"],
+"Jharkhand":["Green Valley Hospital"],
+"Karnataka":["Bengaluru Advanced Care Hospital","Mysuru Heritage Hospital"],
+"Kerala":["Kerala Wellness Medical Center","Backwater Care Hospital"],
+"Madhya Pradesh":["Central Health Hospital"],
+"Maharashtra":["Maharashtra Prime Hospital","Konkan Coast Medical Center"],
+"Manipur":["Imphal Care Hospital"],
+"Meghalaya":["Meghalaya Hills Hospital"],
+"Mizoram":["Mizoram HealthCare Center"],
+"Nagaland":["Nagaland LifeCare Hospital"],
+"Odisha":["Odisha Advanced Medical Center"],
+"Punjab":["Punjab Wellness Hospital"],
+"Rajasthan":["Rajasthan Royal Care Hospital"],
+"Sikkim":["Himalayan LifeCare Hospital"],
+"Tamil Nadu":["Tamil Nadu Advanced Care Hospital","Chennai Marina Medical Center"],
+"Telangana":["Hyderabad Prime Health Hospital"],
+"Tripura":["Tripura Wellness Hospital"],
+"Uttar Pradesh":["Uttar Pradesh CityCare Hospital","Lucknow Nawab Care Hospital"],
+"Uttarakhand":["Himalayan Valley Hospital"],
+"West Bengal":["Bengal Advanced Care Hospital","Kolkata Riverside Hospital"]};
+const UTS={
+"Andaman and Nicobar Islands":["Island Care Hospital"],
+"Chandigarh":["City Beautiful Medical Center"],
+"Dadra and Nagar Haveli and Daman and Diu":["Coastal Union Care Hospital"],
+"Delhi":["Capital Care Hospital","Yamuna Health Center"],
+"Jammu and Kashmir":["Valley Wellness Hospital"],
+"Ladakh":["High Altitude Care Hospital"],
+"Lakshadweep":["Lagoon Care Hospital"],
+"Puducherry":["Pondy Seaside Hospital"]};
+const HOSP=Object.assign({},STATES,UTS);
+const AGES=[["under10","Under 10 years",0,9],["10to17","10–17 years",10,17],["adult","Above 18 years",18,64],["senior","Senior Citizen (65+)",65,120]];
+const SLOTS={Morning:[8,9,10],Afternoon:[12,13,14,15,16],Evening:[18,19,20,21,22]};
+const KEY="medicareIndiaAppointments";
+
+/* ---------- HELPERS ---------- */
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,"0");
+const fmtHour=h=>{const s=h>=12?"PM":"AM",x=h%12||12;return x+":00 "+s};
+const slotLabel=h=>fmtHour(h)+" – "+fmtHour(h+1);
+function todayISO(){const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function longDate(iso){const[y,m,d]=iso.split("-").map(Number);return new Date(y,m-1,d).toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric",weekday:"long"})}
+function opt(v,t,extra){const o=document.createElement("option");o.value=v;o.textContent=t;if(extra)Object.assign(o,extra);return o}
+
+/* ---------- STORAGE ---------- */
+function loadAppointments(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}}
+function saveAppointments(a){try{localStorage.setItem(KEY,JSON.stringify(a));return true}catch(e){return false}}
+function bookingKey(doctor,hospital,date,hour){return[doctor,hospital,date,hour].join("|")}
+function isBooked(doctor,hospital,date,hour){
+  const k=bookingKey(doctor,hospital,date,hour);
+  return loadAppointments().some(a=>a.status==="Confirmed"&&bookingKey(a.doctor,a.hospital,a.date,a.hour)===k);
+}
+function generateId(){
+  const d=new Date(),stamp=d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());
+  const all=loadAppointments().filter(a=>a.id.startsWith("MED-"+stamp));
+  let n=all.length+1,id;
+  do{id="MED-"+stamp+"-"+String(n++).padStart(3,"0")}while(loadAppointments().some(a=>a.id===id));
+  return id;
+}
+function updateAppointment(id,changes){
+  const all=loadAppointments(),a=all.find(x=>x.id===id);
+  if(!a)return false;Object.assign(a,changes);return saveAppointments(all);
+}
+function cancelAppointment(id){
+  if(!confirm("Cancel appointment "+id+"? The time slot will become available again."))return;
+  updateAppointment(id,{status:"Cancelled"});
+  renderList();refreshTimes();
+  const t=$("toast");t.className="toast ok";t.textContent="Appointment "+id+" was cancelled.";
+}
+
+/* ---------- FORM SETUP ---------- */
+function initForm(){
+  $("todayLabel").textContent=longDate(todayISO());
+  const dept=$("dept");dept.append(opt("","Select department"));
+  Object.keys(DOCTORS).forEach(d=>dept.append(opt(d,d)));
+  $("doctor").append(opt("","Select a department first"));
+  $("agecat").append(opt("","Select age group"));AGES.forEach(a=>$("agecat").append(opt(a[0],a[1])));
+  $("gender").append(opt("","Select gender"));["Male","Female","Other"].forEach(g=>$("gender").append(opt(g,g)));
+  const st=$("state");st.append(opt("","Select state / UT"));
+  const g1=document.createElement("optgroup");g1.label="States (28)";Object.keys(STATES).forEach(s=>g1.append(opt(s,s)));
+  const g2=document.createElement("optgroup");g2.label="Union Territories (8)";Object.keys(UTS).forEach(s=>g2.append(opt(s,s)));
+  st.append(g1,g2);
+  $("hospital").append(opt("","Select a state first"));
+  const dt=$("date");dt.min=todayISO();
+  refreshTimes();
+}
+function onDept(){
+  const d=$("dept").value,sel=$("doctor");sel.innerHTML="";
+  if(!d){sel.append(opt("","Select a department first"));sel.disabled=true}
+  else{sel.append(opt("","Select doctor"));DOCTORS[d].forEach(x=>sel.append(opt(x,x)));sel.disabled=false}
+  refreshTimes();updatePreview();
+}
+function onState(){
+  const s=$("state").value,sel=$("hospital");sel.innerHTML="";
+  if(!s){sel.append(opt("","Select a state first"));sel.disabled=true}
+  else{sel.append(opt("","Select hospital"));HOSP[s].forEach(h=>sel.append(opt(h,h)));sel.disabled=false}
+  refreshTimes();updatePreview();
+}
+function refreshTimes(){
+  const sel=$("time"),prev=sel.value,doctor=$("doctor").value,hosp=$("hospital").value,date=$("date").value;
+  sel.innerHTML="";sel.append(opt("","Select time"));
+  const now=new Date(),isToday=date===todayISO();
+  Object.entries(SLOTS).forEach(([name,hours])=>{
+    const g=document.createElement("optgroup");g.label=name;
+    hours.forEach(h=>{
+      let booked=doctor&&hosp&&date&&isBooked(doctor,hosp,date,h);
+      let past=isToday&&h<=now.getHours();
+      const o=opt(h,slotLabel(h)+(booked?" (Booked)":past?" (Passed)":""));
+      o.disabled=booked||past;g.append(o);
+    });
+    sel.append(g);
+  });
+  if(prev&&[...sel.options].some(o=>o.value===prev&&!o.disabled))sel.value=prev;
+}
+function updatePreview(){
+  const d=$("dept").value,doc=$("doctor").value,h=$("hospital").value,s=$("state").value;
+  const p=$("preview");
+  if(!d&&!h){p.textContent="Choose a department, doctor and hospital to see a summary here.";return}
+  p.textContent=[d&&(d+" — "+BLURB[d]),doc&&("Doctor: "+doc+" (fictional)"),h&&("Hospital: "+h+", "+s+" (fictional)")].filter(Boolean).join("  |  ");
+}
+
+/* ---------- VALIDATION ---------- */
+function setErr(f,msg){$("f-"+f).classList.toggle("bad",!!msg);$("e-"+f).textContent=msg||"";const c=$(f);if(msg)c.setAttribute("aria-invalid","true");else c.removeAttribute("aria-invalid")}
+const validators={
+  name(v){v=v.trim();if(!v)return"Patient name is required.";if(v.length<2)return"Name must be at least 2 characters.";if(/\d/.test(v))return"Name cannot contain numbers.";if(!/^[\p{L}][\p{L}\s.'-]*$/u.test(v))return"Use letters, spaces, dots, hyphens or apostrophes only.";return""},
+  dept:v=>v?"":"Please select a department.",
+  doctor:v=>v?"":"Please select a doctor.",
+  agecat:v=>v?"":"Please select an age group.",
+  age(v){if(v==="")return"";const n=Number(v);if(!Number.isInteger(n)||n<0||n>120)return"Enter a whole number between 0 and 120.";const c=AGES.find(a=>a[0]===$("agecat").value);if(c&&(n<c[2]||n>c[3]))return"Age "+n+" does not match \""+c[1]+"\".";return""},
+  gender:v=>v?"":"Please select a gender.",
+  mobile(v){v=v.trim();if(!v)return"Mobile number is required.";if(/[A-Za-z]/.test(v))return"Mobile number cannot contain letters.";if(!/^(\+91[\s-]?)?[6-9]\d{9}$/.test(v))return"Enter a valid 10-digit Indian mobile number starting with 6–9 (optional +91).";return""},
+  email(v){v=v.trim();if(!v)return"Email ID is required.";if(!/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(v))return"Enter a valid email, e.g. name@example.com.";return""},
+  state:v=>v?"":"Please select a state or union territory.",
+  hospital(v){if(!v)return"Please select a hospital.";const s=$("state").value;return s&&HOSP[s].includes(v)?"":"This hospital is not in the selected state."},
+  date(v){if(!v)return"Please choose an appointment date.";if(v<todayISO())return"Past dates cannot be selected.";return""},
+  time(v){if(v==="")return"Please select a time slot.";if(isBooked($("doctor").value,$("hospital").value,$("date").value,Number(v)))return"This slot has just been booked. Pick another.";return""}
+};
+function validateField(f){const m=validators[f]($(f).value);setErr(f,m);return!m}
+function validateAll(){let first=null;Object.keys(validators).forEach(f=>{if(!validateField(f)&&!first)first=f});if(first)$(first).focus();return!first}
+
+/* ---------- SUBMIT / CONFIRM ---------- */
+function onSubmit(e){
+  e.preventDefault();
+  const t=$("toast");
+  if(!validateAll()){t.className="toast err";t.textContent="Please fix the highlighted fields and try again.";return}
+  const hour=Number($("time").value);
+  const appt={id:generateId(),name:$("name").value.trim().replace(/\s+/g," "),dept:$("dept").value,doctor:$("doctor").value,
+    ageCat:AGES.find(a=>a[0]===$("agecat").value)[1],age:$("age").value,gender:$("gender").value,mobile:$("mobile").value.trim(),email:$("email").value.trim(),
+    state:$("state").value,hospital:$("hospital").value,date:$("date").value,hour,time:slotLabel(hour),status:"Confirmed",bookedAt:new Date().toISOString()};
+  const all=loadAppointments();all.push(appt);
+  if(!saveAppointments(all)){t.className="toast err";t.textContent="Could not save: browser storage is unavailable.";return}
+  t.className="toast ok";t.textContent="Appointment booked successfully.";
+  showConfirmation(appt);renderList();clearForm(true);
+}
+function row(dl,k,v){const dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=k;dd.textContent=v;dl.append(dt,dd)}
+function showConfirmation(a){
+  const c=$("confirmCard");c.innerHTML="";
+  const tick=document.createElement("div");tick.className="tick";tick.textContent="✓";tick.setAttribute("aria-hidden","true");
+  const h=document.createElement("h2");h.textContent="Appointment Confirmed";
+  const p=document.createElement("p");p.className="sub";p.textContent="MediCare India (demo) — fictional hospital & doctor";
+  const dl=document.createElement("dl");
+  [["Appointment ID",a.id],["Patient",a.name],["Department",a.dept],["Doctor",a.doctor],["Age group",a.ageCat+(a.age?" (age "+a.age+")":"")],["Gender",a.gender],["Mobile",a.mobile],["Email",a.email],["State",a.state],["Hospital",a.hospital],["Date",longDate(a.date)],["Time",a.time],["Status",a.status]].forEach(r=>row(dl,r[0],r[1]));
+  c.append(tick,h,p,dl);
+  $("confirmWrap").style.display="block";
+  $("confirmWrap").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* ---------- LIST ---------- */
+function renderList(){
+  const q=$("search").value.trim().toLowerCase(),sf=$("statusFilter").value,box=$("list");box.innerHTML="";
+  const all=loadAppointments().sort((a,b)=>(a.date+pad(a.hour)).localeCompare(b.date+pad(b.hour)));
+  const rows=all.filter(a=>(sf==="all"||a.status===sf)&&(!q||[a.id,a.name,a.doctor,a.dept,a.hospital,a.state].join(" ").toLowerCase().includes(q)));
+  if(!rows.length){
+    const d=document.createElement("div");d.className="empty";d.style.gridColumn="1/-1";
+    d.textContent=all.length?"No appointments match your search.":"You have no appointments yet. Use the form above to book your first one.";
+    box.append(d);return;
+  }
+  rows.forEach(a=>{
+    const el=document.createElement("article");el.className="appt"+(a.status==="Cancelled"?" cancelled":"");
+    const h=document.createElement("h3");h.textContent=a.id;
+    const b=document.createElement("span");b.className="badge "+(a.status==="Confirmed"?"b-ok":"b-x");b.textContent=a.status;
+    h.append(" ",b);el.append(h);
+    [["Patient",a.name],["Doctor",a.doctor+" ("+a.dept+")"],["Hospital",a.hospital+", "+a.state],["Date",longDate(a.date)],["Time",a.time]].forEach(([k,v])=>{
+      const p=document.createElement("p");const s=document.createElement("strong");s.textContent=k+": ";p.append(s,document.createTextNode(v));el.append(p)});
+    if(a.status==="Confirmed"){
+      const w=document.createElement("div");w.className="btns";
+      const x=document.createElement("button");x.className="dng";x.textContent="Cancel Appointment";x.setAttribute("aria-label","Cancel appointment "+a.id);
+      x.onclick=()=>cancelAppointment(a.id);
+      const v=document.createElement("button");v.className="sec";v.textContent="View / Print";v.onclick=()=>{showConfirmation(a)};
+      w.append(v,x);el.append(w);
+    }
+    box.append(el);
+  });
+}
+
+/* ---------- CLEAR ---------- */
+function clearForm(keepToast){
+  $("form").reset();
+  Object.keys(validators).forEach(f=>setErr(f,""));
+  $("doctor").innerHTML="";$("doctor").append(opt("","Select a department first"));$("doctor").disabled=true;
+  $("hospital").innerHTML="";$("hospital").append(opt("","Select a state first"));$("hospital").disabled=true;
+  $("dateShow").textContent="";
+  if(!keepToast)$("toast").className="toast";
+  refreshTimes();updatePreview();
+}
+
+/* ---------- EVENTS ---------- */
+document.addEventListener("DOMContentLoaded",()=>{
+  initForm();renderList();
+  $("dept").addEventListener("change",()=>{onDept();validateField("dept");setErr("doctor","")});
+  $("state").addEventListener("change",()=>{onState();validateField("state");setErr("hospital","")});
+  ["doctor","hospital"].forEach(f=>$(f).addEventListener("change",()=>{refreshTimes();updatePreview();validateField(f)}));
+  $("date").addEventListener("change",()=>{refreshTimes();validateField("date");$("dateShow").textContent=$("date").value&&$("date").value>=todayISO()?"Selected: "+longDate($("date").value):""});
+  $("agecat").addEventListener("change",()=>{validateField("agecat");if($("age").value!=="")validateField("age")});
+  ["name","age","gender","mobile","email","time"].forEach(f=>$(f).addEventListener(f==="gender"||f==="time"?"change":"blur",()=>validateField(f)));
+  $("form").addEventListener("submit",onSubmit);
+  $("clear").addEventListener("click",()=>clearForm(false));
+  $("printBtn").addEventListener("click",()=>window.print());
+  $("search").addEventListener("input",renderList);
+  $("statusFilter").addEventListener("change",renderList);
+  window.addEventListener("storage",()=>{renderList();refreshTimes()});
+  setInterval(()=>{const d=$("date");d.min=todayISO();$("todayLabel").textContent=longDate(todayISO())},60000);
+});
+</script>
+</body>
+</html>
